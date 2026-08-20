@@ -185,6 +185,28 @@ export function ConversationRoot({
 
   return (
     <div className={css.root} data-phase={phase}>
+      {/* Persistent single RNTEC logo centered as the chat background
+          watermark — visible in ALL phases (hero + active chat). */}
+      <img
+        className={css.bgLogo}
+        src="/rntec-logo.png"
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+      />
+      {/* Ruineng BMS hero backdrop: looping video + scrim + blueprint grid,
+          mounted only in the blank/hero phase so video decoding stops the
+          moment a chat starts. Positioned absolutely over the whole column
+          root; the header, transcript, and composer all paint above it. */}
+      {hero && (
+        <div className={css.heroBackdrop} aria-hidden="true">
+          <video className={css.heroVideo} autoPlay loop muted playsInline preload="auto">
+            <source src="/bms-bg.mp4" type="video/mp4" />
+          </video>
+          <div className={css.heroScrim} />
+          <div className={css.heroGrid} />
+        </div>
+      )}
       {renderSlot('conversation.session.header', {})}
       <div className={css.scrollBody} data-conversation-scroll="">
         {renderSlot('conversation.session', {})}

@@ -4,23 +4,28 @@
    a 2px active bar. */
 
 .root {
+  position: relative; /* containing block for .heroBackdrop */
   display: flex;
   flex-direction: column;
   height: 100%;
   min-width: 0;
+  overflow: hidden; /* clip heroBackdrop to the column */
+  isolation: isolate; /* new stacking context so z-index on children stays local */
   /* Ruineng (myrntec.com) industrial canvas: a brand-blue blueprint grid with
      a diagonal RNTEC + battery-cell watermark tile. Painted on the column
      root (not the scroller) so the pattern holds still while the transcript
-     scrolls; bubbles, the composer fade mask, and every surface paint above. */
+     scrolls; bubbles, the composer fade mask, and every surface paint above.
+     During the hero phase this is fully covered by .heroBackdrop (video +
+     scrim + grid), so the pattern only shows in the live-chat phase. */
   --dsh-rntec-blue: 55, 147, 219;
   --dsh-rntec-grid-alpha: 0.05;
-  --dsh-rntec-watermark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='440'%3E%3Cg transform='rotate(-24 280 220)'%3E%3Ctext x='280' y='176' text-anchor='middle' font-family='Arial Black, Arial, sans-serif' font-size='80' font-weight='900' letter-spacing='12' fill='%233793DB' fill-opacity='0.055'%3ERNTEC%3C/text%3E%3Cg transform='translate(254 200)' fill='none' stroke='%233793DB' stroke-opacity='0.06' stroke-width='3'%3E%3Crect width='52' height='26'/%3E%3Crect x='52' y='8' width='6' height='10' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3Crect x='7' y='7' width='9' height='12' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3Crect x='20' y='7' width='9' height='12' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3Crect x='33' y='7' width='9' height='12' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3C/g%3E%3Ctext x='280' y='278' text-anchor='middle' font-family='Consolas, Menlo, monospace' font-size='12' letter-spacing='6' fill='%233793DB' fill-opacity='0.055'%3EBMS %C2%B7 Li-ion %C2%B7 400V%3C/text%3E%3C/g%3E%3C/svg%3E");
+  /* Background: clean blueprint grid only — no repeating logo watermark
+     (single centered RNTEC logo lives in the hero). */
   background-color: var(--dsw-alias-bg-base);
   background-image:
-    var(--dsh-rntec-watermark),
     linear-gradient(to right, rgba(var(--dsh-rntec-blue), var(--dsh-rntec-grid-alpha)) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(var(--dsh-rntec-blue), var(--dsh-rntec-grid-alpha)) 1px, transparent 1px);
-  background-size: 560px 440px, 48px 48px, 48px 48px;
+  background-size: 48px 48px, 48px 48px;
 
   /* Shared width axis for the whole column: one content width W
      (--dsh-chat-content-width) for the transcript, the dock cards
@@ -37,13 +42,46 @@
   --dsh-composer-dock-inset: 8px;
 }
 
-/* Dark theme: the watermark repaints in the lighter blue at higher opacity —
-   tinted strokes read dimmer on the dark canvas, so the pattern needs more
-   ink to keep the same presence. */
+/* Dark theme: sparser blue on the dark canvas. */
 :global(body[data-ds-dark-theme]) .root {
   --dsh-rntec-blue: 90, 172, 228;
   --dsh-rntec-grid-alpha: 0.07;
-  --dsh-rntec-watermark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='440'%3E%3Cg transform='rotate(-24 280 220)'%3E%3Ctext x='280' y='176' text-anchor='middle' font-family='Arial Black, Arial, sans-serif' font-size='80' font-weight='900' letter-spacing='12' fill='%235AA4E4' fill-opacity='0.1'%3ERNTEC%3C/text%3E%3Cg transform='translate(254 200)' fill='none' stroke='%235AA4E4' stroke-opacity='0.11' stroke-width='3'%3E%3Crect width='52' height='26'/%3E%3Crect x='52' y='8' width='6' height='10' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3Crect x='7' y='7' width='9' height='12' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3Crect x='20' y='7' width='9' height='12' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3Crect x='33' y='7' width='9' height='12' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3C/g%3E%3Ctext x='280' y='278' text-anchor='middle' font-family='Consolas, Menlo, monospace' font-size='12' letter-spacing='6' fill='%235AA4E4' fill-opacity='0.1'%3EBMS %C2%B7 Li-ion %C2%B7 400V%3C/text%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Persistent centered RNTEC logo watermark — single large mark behind
+   the transcript/composer in ALL phases (hero + active chat). Positioned
+   fixed-center so it stays visually anchored while content scrolls;
+   low opacity so it never competes with chat bubbles or the input card. */
+.bgLogo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 520px;
+  max-width: 65vw;
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: grayscale(0);
+}
+
+:global(body[data-ds-dark-theme]) .bgLogo {
+  opacity: 0.10;
+  filter: brightness(1.4) saturate(0.8);
+}
+
+/* Hero phase: the video backdrop already carries strong visual weight,
+   so tone the background logo down further to avoid clashing with the
+   glowing hero mark. */
+.root[data-phase='hero'] .bgLogo {
+  opacity: 0.035;
+}
+
+:global(body[data-ds-dark-theme]) .root[data-phase='hero'] .bgLogo {
+  opacity: 0.06;
 }
 
 .header {
@@ -51,6 +89,7 @@
   flex: none;
   padding: 12px 28px 0 20px;
   border-bottom: 1px solid transparent;
+  z-index: 2; /* above .heroBackdrop */
 }
 
 .header::after {
@@ -290,11 +329,13 @@
 }
 
 .scrollBody {
+  position: relative;
   display: flex;
   flex: 1;
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
+  z-index: 1; /* above .heroBackdrop */
   /* The column scrolls on ONE axis. Stating `hidden` rather than leaving the
      initial `visible` is what removes the horizontal bar: a box that scrolls in
      one axis computes `visible` to `auto` in the other, so any bleed becomes
@@ -391,26 +432,63 @@
   z-index: 1;
 }
 
-/* Ruineng (myrntec.com) hero backdrop: giant outlined RNTEC letters behind
-   the blank-session stack — the aggressive brand-watermark moment. The class
-   only mounts in the hero phase, so a live transcript never sees it. */
-.composerHero::before {
-  content: 'RNTEC';
+/* Ruineng BMS hero backdrop layer: the looping battery-circuit video fills
+   the column behind header/transcript/composer during the blank session.
+   Only rendered while hero===true (ConversationRoot.tsx), so decoding stops
+   on first message. */
+.heroBackdrop {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Arial Black', 'Segoe UI', 'Microsoft YaHei', sans-serif;
-  font-size: clamp(64px, 14vw, 160px);
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  line-height: 1;
-  white-space: nowrap;
-  color: rgba(var(--dsh-rntec-blue), 0.035);
-  -webkit-text-stroke: 1.5px rgba(var(--dsh-rntec-blue), 0.16);
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
-  user-select: none;
+}
+
+.heroVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Brand-blue tint pushed over the footage so the palette stays locked to
+     RNTEC blue even if the model drifts to other hues. */
+  filter: saturate(0.85) hue-rotate(-4deg);
+}
+
+/* Scrim: a radial light over the center (where the logo + input card sit)
+   fading into a dark-blue wash at the edges, plus a bottom gradient that
+   guarantees the input card's white surface stays crisp. */
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, 0.55) 0%,
+      rgba(255, 255, 255, 0.30) 38%,
+      rgba(239, 240, 244, 0.72) 72%,
+      rgba(239, 240, 244, 0.95) 100%),
+    radial-gradient(ellipse 70% 55% at 50% 42%, rgba(255, 255, 255, 0.35) 0%, transparent 70%);
+}
+
+:global(body[data-ds-dark-theme]) .heroScrim {
+  background:
+    linear-gradient(180deg,
+      rgba(10, 32, 56, 0.55) 0%,
+      rgba(10, 32, 56, 0.75) 50%,
+      rgba(10, 32, 56, 0.95) 100%),
+    radial-gradient(ellipse 70% 55% at 50% 42%, rgba(55, 147, 219, 0.18) 0%, transparent 70%);
+}
+
+/* Blueprint grid stays over the video so the industrial-canvas language
+   persists; sparser and dimmer than the chat-phase pattern because the
+   footage already carries circuit detail. */
+.heroGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(var(--dsh-rntec-blue), 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--dsh-rntec-blue), 0.035) 1px, transparent 1px);
+  background-size: 64px 64px, 64px 64px;
 }
 
 /* Blue backdrop ellipse (figma 313:14109), centered on the input card: the

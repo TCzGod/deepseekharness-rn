@@ -1,6 +1,7 @@
-/* NEW SESSION hero (figma Input_Bottom 75:8208): fish + title, workspace chip
-   above the shared InputBar card. The input itself is InputBar — only stack
-   geometry and the chip live here. */
+/* NEW SESSION hero: RNTEC logo + headline, workspace chip above the shared
+   InputBar card. Video backdrop lives in ConversationRoot .heroBackdrop so
+   it fills the whole column; this file only styles the in-flow brand mark
+   and typography. */
 
 .root {
   display: flex;
@@ -11,80 +12,68 @@
   padding: 0 24px;
 }
 
-/* Cap matches the InputBar card. Glow may paint past the sides. */
+/* Cap matches the InputBar card. */
 .stack {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  /* figma 75:8208: 12 between title block / workspace / card. */
-  gap: 12px;
+  align-items: center;
+  gap: 20px;
   width: 100%;
   max-width: var(--dsh-composer-card-max-width);
   overflow: visible;
 }
 
-@property --dsh-rntec-charge {
-  syntax: '<percentage>';
-  inherits: false;
-  initial-value: 0%;
+/* RNTEC logo block: the centered hero mark. The PNG is already transparent
+   (white background stripped at build time), so we render it directly — no
+   white panel, no border, no drop card — just the blue wordmark floating
+   over the BMS video backdrop. A soft blue glow gives it lift without a
+   containing box. */
+.logoBlock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border: none;
 }
 
-/* Ruineng BMS signature under the headline: a battery-module strip that
-   fills like a charging pack, holds, fades, and repeats. Pure decoration —
-   the pack cells ride a repeating-linear-gradient, the fill progress rides
-   the animated custom property masked over them. */
-.stack::after {
-  content: '';
-  width: min(300px, 76%);
-  height: 8px;
-  margin: 20px auto 0;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(var(--dsh-rntec-blue, 55, 147, 219), 0.8) 0 15px,
-    transparent 15px 21px
-  );
-  -webkit-mask: linear-gradient(90deg, #000 0 var(--dsh-rntec-charge), transparent var(--dsh-rntec-charge));
-  mask: linear-gradient(90deg, #000 0 var(--dsh-rntec-charge), transparent var(--dsh-rntec-charge));
+.logoImg {
+  display: block;
+  width: 380px;
+  max-width: 78vw;
+  height: auto;
+  filter: drop-shadow(0 6px 28px rgba(55, 147, 219, 0.6)) drop-shadow(0 0 4px rgba(55, 147, 219, 0.9));
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .stack::after {
-    animation: rntec-pack-charge 3.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  .logoImg {
+    animation: rntec-logo-breathe 4s ease-in-out infinite;
   }
 }
 
-@keyframes rntec-pack-charge {
-  0% {
-    --dsh-rntec-charge: 0%;
-    opacity: 0;
+@keyframes rntec-logo-breathe {
+  0%, 100% {
+    filter: drop-shadow(0 6px 28px rgba(55, 147, 219, 0.6)) drop-shadow(0 0 4px rgba(55, 147, 219, 0.9));
+    transform: translateY(0);
   }
 
-  8% {
-    opacity: 1;
-  }
-
-  70% {
-    --dsh-rntec-charge: 100%;
-  }
-
-  86% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
+  50% {
+    filter: drop-shadow(0 10px 40px rgba(55, 147, 219, 0.85)) drop-shadow(0 0 8px rgba(55, 147, 219, 1));
+    transform: translateY(-4px);
   }
 }
 
-/* figma 34:10411: fish + title, gap 10, centered; 26/32 wt500. The preview
-   badge is a product addition outside that source: a mono superscript pill
-   riding the title's top-right. */
+/* Headline: centered, no fish glyph column (logo replaces it); the preview
+   badge rides the top-right of the text line. */
 .headline {
-  display: grid;
-  grid-template-columns: 34px auto auto;
-  column-gap: 10px;
+  position: relative;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 10px;
   font-size: 26px;
   line-height: 32px;
   font-weight: 500;
@@ -92,19 +81,19 @@
 }
 
 .headlineText {
-  grid-row: 1;
-  grid-column: 2;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+:global(body[data-ds-dark-theme]) .headlineText {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
 
 .previewBadge {
-  grid-row: 1;
-  grid-column: 3;
   align-self: start;
   margin-top: 2px;
   margin-left: -3px;
   padding: 1px 7px 0;
   border: 1px solid var(--dsw-alias-interactive-bg-hover);
-  border-radius: 24px;
   background: var(--dsw-alias-state-business-tertiary);
   color: var(--dsw-alias-label-primary-bluish);
   font-family: var(--ds-font-family-code);
@@ -114,44 +103,7 @@
   white-space: nowrap;
 }
 
-/* Keep hover detection on a stationary box while the mark moves within it. */
-.fishHitbox {
-  grid-row: 1;
-  grid-column: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Keep the hero mark in the same primary ink as its headline. */
-.fish {
-  color: var(--dsw-alias-label-primary);
-  transform-origin: 50% 60%;
-}
-
-@keyframes hero-fish-swim {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-
-  35% {
-    transform: translate(-1px, -1px) rotate(-5deg);
-  }
-
-  70% {
-    transform: translate(1px, 0) rotate(3deg);
-  }
-}
-
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .fishHitbox:hover .fish {
-    animation: hero-fish-swim var(--ds-transition-duration-slow) var(--ds-ease-in-out);
-  }
-}
-
-/* Workspace row sits 12px above the input card (figma y80 → y112). The blue
-   glow lives with the owner (ConversationRoot .heroGlow) so it can center on
-   the input card. */
+/* Workspace row sits above the input card. */
 .body {
   position: relative;
   display: flex;
@@ -159,6 +111,7 @@
   gap: 12px;
   min-width: 0;
   overflow: visible;
+  width: 100%;
 }
 
 .body > * {
@@ -173,6 +126,7 @@
   display: flex;
   align-items: center;
   min-width: 0;
+  justify-content: center;
   /* figma 75:8208 workspace row: px 8 above the card. */
   padding-left: 8px;
 }
@@ -186,13 +140,17 @@
   min-height: 28px;
   padding: 0 8px;
   border: none;
-  border-radius: 16px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
   color: var(--dsw-alias-label-primary);
   font-size: 13px;
   line-height: 20px;
   font-weight: 500;
   cursor: pointer;
+}
+
+:global(body[data-ds-dark-theme]) .workspace {
+  background: rgba(18, 42, 68, 0.6);
 }
 
 .workspace:not(:disabled):hover,
@@ -222,16 +180,15 @@
   color: var(--dsw-alias-label-caption);
 }
 
-/* Dialog field: 44 tall on the modal's 332 content column, r22, hairline
-   border, pad 14/7, 14/22 wt400 primary text, caption placeholder. Focus
-   keeps the resting border (design shows no focus ring). */
+/* Dialog field: 44 tall on the modal's 332 content column, hairline border,
+   pad 14/7, 14/22 wt400 primary text, caption placeholder. Focus keeps the
+   resting border (design shows no focus ring). */
 .modalInput {
   box-sizing: border-box;
   width: 100%;
   height: 44px;
   padding: 7px 14px;
   border: 1px solid var(--dsw-alias-border-l2);
-  border-radius: 22px;
   outline: none;
   background: transparent;
   font-size: 14px;

@@ -1,13 +1,13 @@
-// Hero chrome for the blank-draft phase of ConversationRoot: fish headline,
-// glow backdrop, and the workspace row. Pure presentation — the resident
-// composer is NOT rendered here (it keeps its own stable tree position in
-// ConversationRoot so the textarea survives the hero → composer flip); CSS
-// positions it over this shell's glow area during the hero phase.
+// Hero chrome for the blank-draft phase of ConversationRoot: RNTEC logo,
+// BMS battery video backdrop, headline, and the workspace row. Pure
+// presentation — the resident composer is NOT rendered here (it keeps its
+// own stable tree position in ConversationRoot so the textarea survives the
+// hero → composer flip); CSS positions it over this shell's glow area.
 
 import { useId } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import {
-  FishLogo, IconChevronDownOutline14, IconFolderClose16, IconFolderOpen16,
+  IconChevronDownOutline14, IconFolderClose16, IconFolderOpen16,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import { workspaceTitleOf } from '@deepseek-ai/dsh-client-runtime/client'
 import type { ConversationSlotProps } from '../contract/slots.ts'
@@ -107,8 +107,9 @@ export interface HeroShellProps {
 }
 
 /**
- * Render the hero chrome (headline only; no glow, no composer, no workspace
- * row — the glow is the owner's {@link HeroGlow}).
+ * Render the hero chrome: RNTEC brand logo centered above the headline,
+ * with a looping BMS battery-system video as the backdrop. The glow is the
+ * owner's {@link HeroGlow} and mounts outside this tree.
  * @param props - see {@link HeroShellProps}.
  * @returns the centered hero element tree.
  */
@@ -116,11 +117,19 @@ export function HeroShell({ t, children }: HeroShellProps) {
   return (
     <div className={css.root}>
       <div className={css.stack}>
+        {/* RNTEC logo, centered, scaled as the hero's primary brand mark.
+            Replaces the original fish glyph with the company's official
+            logo (public/rntec-logo.png served from the site root). The
+            BMS video backdrop lives in ConversationRoot .heroBackdrop. */}
+        <div className={css.logoBlock}>
+          <img
+            className={css.logoImg}
+            src="/rntec-logo.png"
+            alt="RNTEC 锐能科技"
+            draggable={false}
+          />
+        </div>
         <div className={css.headline}>
-          {/* figma 34:10412: fish 34×25 leading the headline, gap 10. */}
-          <span className={css.fishHitbox}>
-            <FishLogo size={34} className={css.fish} />
-          </span>
           <span className={css.headlineText}>{t('hero.headline')}</span>
           <span className={css.previewBadge}>{t('hero.preview')}</span>
         </div>
