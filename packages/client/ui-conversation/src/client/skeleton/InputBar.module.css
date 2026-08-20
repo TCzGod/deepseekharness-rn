@@ -81,6 +81,32 @@
   --dsh-scrollbar-thumb-hover: var(--dsw-alias-scrollbar-hover-l2);
 }
 
+/* Ruineng (myrntec.com) HUD frame: brand-blue corner brackets on the
+   composer card, squared like the reference site's industrial controls.
+   pointer-events: none keeps every control's hit area intact. */
+.card::before {
+  --dsh-rntec-hud: rgba(var(--dsh-rntec-blue, 55, 147, 219), 0.55);
+  content: '';
+  position: absolute;
+  inset: 4px;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) left top / 14px 2px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) left top / 2px 14px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) right top / 14px 2px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) right top / 2px 14px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) left bottom / 14px 2px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) left bottom / 2px 14px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) right bottom / 14px 2px,
+    linear-gradient(var(--dsh-rntec-hud), var(--dsh-rntec-hud)) right bottom / 2px 14px;
+  background-repeat: no-repeat;
+}
+
+:global(body[data-ds-dark-theme]) .card::before {
+  --dsh-rntec-hud: rgba(var(--dsh-rntec-blue, 90, 172, 228), 0.75);
+}
+
 /* No-workspace trigger state: dashed l4 stroke marks the card as a pick-a-
    workspace affordance rather than a live composer; hover answers in the
    business blue to invite the click. Native `dashed` has a fixed browser
@@ -99,8 +125,8 @@
   border-radius: 22px;
   background: var(--dsw-alias-border-l4);
   transition: background-color 100ms ease;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='black' stroke-width='2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='black' stroke-width='2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' rx='2' ry='2' stroke='black' stroke-width='2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='100%25' height='100%25' fill='none' rx='2' ry='2' stroke='black' stroke-width='2' stroke-dasharray='4 4'/%3E%3C/svg%3E");
   pointer-events: none;
 }
 
@@ -444,7 +470,7 @@
 .chip {
   position: relative;
   border-radius: 6px;
-  background: rgba(97, 135, 216, 0.22);
+  background: rgba(55, 147, 219, 0.18);
 }
 
 .chip::before {

@@ -23,6 +23,59 @@
   overflow: visible;
 }
 
+@property --dsh-rntec-charge {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
+/* Ruineng BMS signature under the headline: a battery-module strip that
+   fills like a charging pack, holds, fades, and repeats. Pure decoration —
+   the pack cells ride a repeating-linear-gradient, the fill progress rides
+   the animated custom property masked over them. */
+.stack::after {
+  content: '';
+  width: min(300px, 76%);
+  height: 8px;
+  margin: 20px auto 0;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(var(--dsh-rntec-blue, 55, 147, 219), 0.8) 0 15px,
+    transparent 15px 21px
+  );
+  -webkit-mask: linear-gradient(90deg, #000 0 var(--dsh-rntec-charge), transparent var(--dsh-rntec-charge));
+  mask: linear-gradient(90deg, #000 0 var(--dsh-rntec-charge), transparent var(--dsh-rntec-charge));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stack::after {
+    animation: rntec-pack-charge 3.8s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  }
+}
+
+@keyframes rntec-pack-charge {
+  0% {
+    --dsh-rntec-charge: 0%;
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  70% {
+    --dsh-rntec-charge: 100%;
+  }
+
+  86% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
 /* figma 34:10411: fish + title, gap 10, centered; 26/32 wt500. The preview
    badge is a product addition outside that source: a mono superscript pill
    riding the title's top-right. */

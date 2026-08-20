@@ -8,7 +8,19 @@
   flex-direction: column;
   height: 100%;
   min-width: 0;
-  background: var(--dsw-alias-bg-base);
+  /* Ruineng (myrntec.com) industrial canvas: a brand-blue blueprint grid with
+     a diagonal RNTEC + battery-cell watermark tile. Painted on the column
+     root (not the scroller) so the pattern holds still while the transcript
+     scrolls; bubbles, the composer fade mask, and every surface paint above. */
+  --dsh-rntec-blue: 55, 147, 219;
+  --dsh-rntec-grid-alpha: 0.05;
+  --dsh-rntec-watermark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='440'%3E%3Cg transform='rotate(-24 280 220)'%3E%3Ctext x='280' y='176' text-anchor='middle' font-family='Arial Black, Arial, sans-serif' font-size='80' font-weight='900' letter-spacing='12' fill='%233793DB' fill-opacity='0.055'%3ERNTEC%3C/text%3E%3Cg transform='translate(254 200)' fill='none' stroke='%233793DB' stroke-opacity='0.06' stroke-width='3'%3E%3Crect width='52' height='26'/%3E%3Crect x='52' y='8' width='6' height='10' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3Crect x='7' y='7' width='9' height='12' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3Crect x='20' y='7' width='9' height='12' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3Crect x='33' y='7' width='9' height='12' fill='%233793DB' fill-opacity='0.06' stroke='none'/%3E%3C/g%3E%3Ctext x='280' y='278' text-anchor='middle' font-family='Consolas, Menlo, monospace' font-size='12' letter-spacing='6' fill='%233793DB' fill-opacity='0.055'%3EBMS %C2%B7 Li-ion %C2%B7 400V%3C/text%3E%3C/g%3E%3C/svg%3E");
+  background-color: var(--dsw-alias-bg-base);
+  background-image:
+    var(--dsh-rntec-watermark),
+    linear-gradient(to right, rgba(var(--dsh-rntec-blue), var(--dsh-rntec-grid-alpha)) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--dsh-rntec-blue), var(--dsh-rntec-grid-alpha)) 1px, transparent 1px);
+  background-size: 560px 440px, 48px 48px, 48px 48px;
 
   /* Shared width axis for the whole column: one content width W
      (--dsh-chat-content-width) for the transcript, the dock cards
@@ -25,6 +37,15 @@
   --dsh-composer-dock-inset: 8px;
 }
 
+/* Dark theme: the watermark repaints in the lighter blue at higher opacity —
+   tinted strokes read dimmer on the dark canvas, so the pattern needs more
+   ink to keep the same presence. */
+:global(body[data-ds-dark-theme]) .root {
+  --dsh-rntec-blue: 90, 172, 228;
+  --dsh-rntec-grid-alpha: 0.07;
+  --dsh-rntec-watermark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='440'%3E%3Cg transform='rotate(-24 280 220)'%3E%3Ctext x='280' y='176' text-anchor='middle' font-family='Arial Black, Arial, sans-serif' font-size='80' font-weight='900' letter-spacing='12' fill='%235AA4E4' fill-opacity='0.1'%3ERNTEC%3C/text%3E%3Cg transform='translate(254 200)' fill='none' stroke='%235AA4E4' stroke-opacity='0.11' stroke-width='3'%3E%3Crect width='52' height='26'/%3E%3Crect x='52' y='8' width='6' height='10' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3Crect x='7' y='7' width='9' height='12' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3Crect x='20' y='7' width='9' height='12' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3Crect x='33' y='7' width='9' height='12' fill='%235AA4E4' fill-opacity='0.11' stroke='none'/%3E%3C/g%3E%3Ctext x='280' y='278' text-anchor='middle' font-family='Consolas, Menlo, monospace' font-size='12' letter-spacing='6' fill='%235AA4E4' fill-opacity='0.1'%3EBMS %C2%B7 Li-ion %C2%B7 400V%3C/text%3E%3C/g%3E%3C/svg%3E");
+}
+
 .header {
   position: relative;
   flex: none;
@@ -36,12 +57,32 @@
   content: '';
   position: absolute;
   right: 0;
-  bottom: 1px;
+  bottom: 0;
   left: 0;
   z-index: 0;
-  height: 1px;
-  background: var(--dsw-alias-border-l2);
+  height: 2px;
+  /* Ruineng live trace: brand-blue hairline under the session header with a
+     spark that sweeps across it like a charge-current readout. */
+  background:
+    linear-gradient(90deg, transparent 0 7%, rgba(var(--dsh-rntec-blue), 0.95) 9%, rgba(var(--dsh-rntec-blue), 0.95) 11%, transparent 13%) 0 0 / 200% 100% no-repeat,
+    linear-gradient(90deg, transparent, rgba(var(--dsh-rntec-blue), 0.3) 18%, rgba(var(--dsh-rntec-blue), 0.3) 82%, transparent);
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .header::after {
+    animation: rntec-scan 3.6s linear infinite;
+  }
+}
+
+@keyframes rntec-scan {
+  from {
+    background-position: 0% 0, 0 0;
+  }
+
+  to {
+    background-position: -100% 0, 0 0;
+  }
 }
 
 /* Blank hero/settling: keep the strict Session header mounted without taking
@@ -173,8 +214,34 @@
   color: var(--dsw-alias-state-business-primary);
 }
 
+/* Ruineng (myrntec.com) section-title mark, charged: the short brand-blue
+   bar under the active tab now carries a sweeping gloss, like a cell topping
+   up. */
 .tabActive::after {
-  background: var(--dsw-alias-state-business-primary);
+  right: auto;
+  left: 50%;
+  width: 28px;
+  margin-left: -14px;
+  height: 3px;
+  background:
+    linear-gradient(90deg, transparent 0 30%, rgba(255, 255, 255, 0.9) 50%, transparent 70%) 0 0 / 200% 100% no-repeat,
+    var(--dsw-alias-state-business-primary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tabActive::after {
+    animation: rntec-charge 2.4s linear infinite;
+  }
+}
+
+@keyframes rntec-charge {
+  from {
+    background-position: 100% 0, 0 0;
+  }
+
+  to {
+    background-position: -100% 0, 0 0;
+  }
 }
 
 .viewArea {
@@ -322,6 +389,28 @@
      width as the docked composer at every viewport. */
   width: min(calc(var(--dsh-composer-card-max-width) + 2 * var(--dsh-composer-side-clearance)), 100%);
   z-index: 1;
+}
+
+/* Ruineng (myrntec.com) hero backdrop: giant outlined RNTEC letters behind
+   the blank-session stack — the aggressive brand-watermark moment. The class
+   only mounts in the hero phase, so a live transcript never sees it. */
+.composerHero::before {
+  content: 'RNTEC';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Arial Black', 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: clamp(64px, 14vw, 160px);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  white-space: nowrap;
+  color: rgba(var(--dsh-rntec-blue), 0.035);
+  -webkit-text-stroke: 1.5px rgba(var(--dsh-rntec-blue), 0.16);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* Blue backdrop ellipse (figma 313:14109), centered on the input card: the

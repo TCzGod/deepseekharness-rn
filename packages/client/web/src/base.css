@@ -34,3 +34,22 @@ select,
 textarea {
   font-family: inherit;
 }
+
+/* ---- Ruineng (myrntec.com) visual layer ----
+ * Signature look of the reference site: squared corners everywhere and a
+ * brand-blue text selection. The universal rule is !important because plugin
+ * CSS modules arrive as runtime <style> tags AFTER this sheet — plain
+ * declarations would lose the cascade. A component that must stay round
+ * (boot spinner) re-declares border-radius with !important: its class
+ * specificity (0-1-0) beats this universal selector (0-0-0) at equal
+ * importance. Scrollbar thumbs are pseudo-elements, untouched by `*`. */
+*,
+*::before,
+*::after {
+  border-radius: 0 !important;
+}
+
+::selection {
+  background: rgb(55, 147, 219);
+  color: #fff;
+}
