@@ -185,15 +185,13 @@ export function ConversationRoot({
 
   return (
     <div className={css.root} data-phase={phase}>
-      {/* Persistent single RNTEC logo centered as the chat background
-          watermark — visible in ALL phases (hero + active chat). */}
-      <img
-        className={css.bgLogo}
-        src="/rntec-logo.png"
-        alt=""
-        aria-hidden="true"
-        draggable={false}
-      />
+      {/* Single large centered RNTEC logo as fixed-position background
+          watermark. position:fixed keeps it pinned to the viewport center
+          regardless of scroll; z-index sits between the page bg and all
+          interactive content so it never scrolls with the transcript. */}
+      <div className={css.bgLogo} aria-hidden="true">
+        <img src="/rntec-logo.png" alt="" draggable={false} />
+      </div>
       {/* Ruineng BMS hero backdrop: looping video + scrim + blueprint grid,
           mounted only in the blank/hero phase so video decoding stops the
           moment a chat starts. Positioned absolutely over the whole column
