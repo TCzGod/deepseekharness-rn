@@ -101,6 +101,8 @@ export function repositoryGitDirty(root: string): boolean | undefined {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    // Large dirty trees can exceed the 1 MiB default, which surfaces as ENOBUFS.
+    maxBuffer: 64 * 1024 * 1024,
   })
   if (status.error !== undefined) throw status.error
   if (status.status !== 0) {
