@@ -1,20 +1,16 @@
-// Hero chrome for the blank-draft phase of ConversationRoot: RNTEC logo,
-// BMS battery video backdrop, headline, and the workspace row. Pure
-// presentation — the resident composer is NOT rendered here (it keeps its
-// own stable tree position in ConversationRoot so the textarea survives the
-// hero → composer flip); CSS positions it over this shell's glow area.
+// The composer remains in ConversationRoot so switching out of the blank-draft
+// phase does not remount its textarea.
 
-import { useId } from 'react'
 import type { ReactNode, RefObject } from 'react'
 import {
-  IconChevronDownOutline14, IconFolderClose16, IconFolderOpen16,
+  IconChevronDownOutlineRegular, IconFolderCloseRegular, IconFolderOpenRegular,
 } from '@deepseek-ai/dsh-client-ui-primitives'
-import { workspaceTitleOf } from '@deepseek-ai/dsh-client-runtime/client'
-import type { ConversationSlotProps } from '../contract/slots.ts'
+import { workspaceTitleOf } from '@deepseek-ai/dsh-util-workspace-path'
+import type { ConversationContentProps } from '../contract/slots.ts'
 import css from './HeroShell.module.css'
 
 /** The owner's locale seat type, passed to hero chrome as a plain prop. */
-type HeroTranslate = ConversationSlotProps['t']
+type HeroTranslate = ConversationContentProps['t']
 
 /**
  * Basename label for the workspace chip (the shared derivation);
@@ -56,45 +52,11 @@ export function WorkspaceChip({ buttonRef, label, menuOpen = false, onClick, t }
       onClick={onClick}
     >
       {label === undefined
-        ? <IconFolderClose16 className={css.folder} size={16} />
-        : <IconFolderOpen16 className={css.folder} size={16} />}
+        ? <IconFolderCloseRegular className={css.folder} size={16} />
+        : <IconFolderOpenRegular className={css.folder} size={16} />}
       <span className={css.workspaceLabel}>{label ?? t('hero.chooseWorkspace')}</span>
-      <IconChevronDownOutline14 className={css.chevron} size={12} />
+      <IconChevronDownOutlineRegular className={css.chevron} size={12} />
     </button>
-  )
-}
-
-/**
- * The soft blue backdrop ellipse (figma 313:14109). Rendered by the hero
- * owner (ConversationRoot), not HeroShell, so it can center on the input
- * card; the owner's className supplies all positioning.
- * @param props.className - positioning class from the owner.
- * @returns the blurred-ellipse svg element.
- */
-export function HeroGlow({ className }: { className?: string | undefined }) {
-  // Stable filter id so multiple hero mounts do not collide in the DOM.
-  const glowFilterId = `empty-glow-${useId().replace(/:/g, '')}`
-  return (
-    <svg className={className} viewBox="0 0 1051 468" fill="none" aria-hidden="true">
-      <defs>
-        <filter
-          id={glowFilterId}
-          x="0"
-          y="0"
-          width="1051"
-          height="468"
-          filterUnits="userSpaceOnUse"
-          colorInterpolationFilters="sRGB"
-        >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
-          <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-          <feGaussianBlur stdDeviation="50" result="effect1_foregroundBlur" />
-        </filter>
-      </defs>
-      <g filter={`url(#${glowFilterId})`}>
-        <ellipse cx="525.5" cy="234" rx="425.5" ry="134" fill="#3793DB" fillOpacity="0.08" />
-      </g>
-    </svg>
   )
 }
 
@@ -102,42 +64,34 @@ export function HeroGlow({ className }: { className?: string | undefined }) {
 export interface HeroShellProps {
   /** The owner's locale seat, passed down as a plain prop. */
   t: HeroTranslate
+  /** Authorized renderer for the hero brand-mark slot. */
+  renderSlot: ConversationContentProps['renderSlot']
   /** Overlay content after the stack (modals). */
   children?: ReactNode
 }
 
 /**
- * Render the hero chrome: RNTEC brand logo centered above the headline,
- * with a looping BMS battery-system video as the backdrop. The glow is the
- * owner's {@link HeroGlow} and mounts outside this tree.
+ * Render the RNTEC hero brand and headline above the resident composer.
  * @param props - see {@link HeroShellProps}.
  * @returns the centered hero element tree.
  */
-export function HeroShell({ t, children }: HeroShellProps) {
+export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
   return (
     <div className={css.root}>
       <div className={css.stack}>
-        {/* RNTEC logo, centered, scaled as the hero's primary brand mark.
-            Replaces the original fish glyph with the company's official
-            logo (public/rntec-logo.png served from the site root). The
-            BMS video backdrop lives in ConversationRoot .heroBackdrop. */}
         <div className={css.logoBlock}>
-          <img
-            className={css.logoImg}
-            src="/rntec-logo.png"
-            alt="RNTEC 锐能科技"
-            draggable={false}
-          />
+          {renderSlot('conversation.hero.brand.mark', { size: 34, className: css.fish }, {
+            fallback: <img className={css.logoImg} src="/rntec-logo.png" alt="" draggable={false} />,
+          })}
         </div>
         <div className={css.headline}>
-          <span className={css.headlineText}>{t('hero.headline')}</span>
-          <span className={css.previewBadge}>{t('hero.preview')}</span>
+          <span className={css.titleGroup}>
+            <span className={css.headlineText}>{t('hero.headline')}</span>
+            <span className={css.previewBadge}>{t('hero.preview')}</span>
+          </span>
         </div>
         <div className={css.body}>
-          {/* The resident composer (ConversationRoot's root-owned scrollport;
-              the workspace row rides the stack above the card) is CSS-centered
-              in that scroll body during hero — see
-              ConversationRoot.module.css [data-phase='hero']. */}
+          {/* The composer remains mounted outside this component. */}
         </div>
       </div>
       {children}
